@@ -3,23 +3,30 @@ import React, { useState, useEffect } from "react";
 export default function Quiz() {
   const [quizRunning, setQuizRunning] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(10);
-  const [words, setWords] = useState(["a", "b", "c"]); //
+  const [words, setWords] = useState([]); //
   const [answerMap, setAnswerMap] = useState([]);
   const [answer, setAnswer] = useState("");
+  const [currentWord, CurrentWord] = useState();
 
-  const randomWord = words[Math.floor(Math.random() * words.length)];
+  function random(array) {
+    return array[Math.floor(Math.random() * array.length)];
+  }
 
   function say(word) {
     window.speechSynthesis.speak(new SpeechSynthesisUtterance(word));
   }
 
-  function handleNextQuestion(word) {
-    const tempWords = [...words];
-    setWords(tempWords.filter((w) => w !== word));
+  function handleNextQuestion() {
+    let tempWords = [...words];
+    tempWords = tempWords.filter((w) => w !== currentWord);
+    setWords(tempWords);
+    const selectedWord = random(tempWords);
+    CurrentWord(selectedWord);
+    say(selectedWord);
   }
 
-  function handlePlayAgain(word) {
-    say(word);
+  function handlePlayAgain() {
+    say(currentWord);
   }
 
   function handleInputChange(value) {
@@ -28,8 +35,15 @@ export default function Quiz() {
 
   function handleStartQuiz() {
     setQuizRunning(1);
-    const allWords = JSON.parse(localStorage.getItem("spelling"));
-    setWords(allWords.sort(() => 0.5 - Math.random()).slice(0, totalQuestions));
+    let tempWords = JSON.parse(localStorage.getItem("spelling"));
+    tempWords = tempWords
+      .sort(() => 0.5 - Math.random())
+      .slice(0, totalQuestions);
+
+    setWords(tempWords);
+    const selectedWord = random(tempWords);
+    CurrentWord(selectedWord);
+    say(selectedWord);
   }
 
   function handleStartQuizAgain() {
@@ -41,7 +55,7 @@ export default function Quiz() {
       {quizRunning ? (
         words.length > 0 ? (
           <div>
-            <p>{randomWord}</p>
+            <p>{currentWord}</p>
 
             <input
               type="text"
@@ -49,8 +63,8 @@ export default function Quiz() {
               onChange={(e) => handleInputChange(e.target.value)}
             />
 
-            <button onClick={() => handlePlayAgain(randomWord)}>Play</button>
-            <button onClick={() => handleNextQuestion(randomWord)}>
+            <button onClick={() => handlePlayAgain()}>Play</button>
+            <button onClick={() => handleNextQuestion()}>
               {words.length === 1 ? "Finish Quiz" : "Next Question"}
             </button>
           </div>
