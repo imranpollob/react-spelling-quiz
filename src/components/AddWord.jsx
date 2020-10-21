@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { misspelled } from "./MisspelledWords";
 
 const LOCAL_STORAGE_KEY = "spelling";
 
 export default function AddWord() {
-  const [words, setWords] = useState([]);
+  const [words, setWords] = useState(misspelled);
   const [currentValue, setCurrentValue] = useState("");
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function AddWord() {
 
   return (
     <div className="App">
+      <label>Insert a word</label>
       <input
         type="text"
         value={currentValue}
@@ -36,7 +38,7 @@ export default function AddWord() {
         onKeyDown={(e) => handleInput(e)}
       />
       <ol>
-        {words.map((word) => (
+        {words.sort().map((word) => (
           <li key={uuidv4()}>{word}</li>
         ))}
       </ol>

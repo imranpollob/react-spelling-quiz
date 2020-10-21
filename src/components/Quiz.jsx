@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { misspelled } from "./MisspelledWords";
+import shuffleArray from "./../helpers/array_shuffle";
+import say from "./../helpers/say";
 
 export default function Quiz() {
   const [quizRunning, setQuizRunning] = useState(0);
@@ -9,20 +12,12 @@ export default function Quiz() {
   const [answer, setAnswer] = useState("");
   const [currentWord, CurrentWord] = useState();
 
-  function random(array) {
-    return array[Math.floor(Math.random() * array.length)];
-  }
-
-  function say(word) {
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(word));
-  }
-
   function handleNextQuestion() {
     setAnswerMap({ ...answerMap, [currentWord]: answer });
     let tempWords = [...words];
     tempWords = tempWords.filter((w) => w !== currentWord);
     setWords(tempWords);
-    const selectedWord = random(tempWords);
+    const selectedWord = tempWords[0];
     CurrentWord(selectedWord);
     say(selectedWord);
     setAnswer("");
@@ -39,14 +34,10 @@ export default function Quiz() {
   function handleStartQuiz() {
     setQuizRunning(1);
     setAnswerMap({});
-    let tempWords = JSON.parse(localStorage.getItem("spelling"));
-    // let tempWords = ["abaide", "fox", "success"];
-    tempWords = tempWords
-      .sort(() => 0.5 - Math.random())
-      .slice(0, totalQuestions);
-
+    // let tempWords = JSON.parse(localStorage.getItem("spelling"));
+    let tempWords = shuffleArray(misspelled).slice(0, totalQuestions);
     setWords(tempWords);
-    const selectedWord = random(tempWords);
+    const selectedWord = tempWords[0];
     CurrentWord(selectedWord);
     say(selectedWord);
   }
@@ -55,17 +46,25 @@ export default function Quiz() {
     setQuizRunning(0);
   }
 
+  function handleInput(e) {
+    if (e.key === "Enter") {
+      setAnswer(e.target.value);
+      handleNextQuestion();
+    }
+  }
   return (
     <div>
       {quizRunning ? (
         words.length > 0 ? (
           <div>
-            <p>{currentWord}</p>
-
+            <div>
+              {totalQuestions - words.length + 1} of {totalQuestions}
+            </div>
             <input
               type="text"
               value={answer}
               onChange={(e) => handleInputChange(e.target.value)}
+              onKeyDown={(e) => handleInput(e)}
             />
 
             <button onClick={() => handlePlayAgain()}>Play</button>
@@ -98,6 +97,16 @@ export default function Quiz() {
                 ))}
               </tbody>
             </table>
+
+            <div>
+              Got{" "}
+              {
+                Object.entries(answerMap).filter(
+                  ([key, value]) => key.toLowerCase() === value.toLowerCase()
+                ).length
+              }{" "}
+              of {totalQuestions}
+            </div>
 
             <button onClick={() => handleStartQuizAgain()}>
               Start Again !!!
