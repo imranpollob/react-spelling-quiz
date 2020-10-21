@@ -97,11 +97,11 @@
   text-align: center;
 }
 
-.quiz-result-status-correct {
+.quiz-result-status-Correct {
   color: hsl(120, 100%, 30%);
 }
 
-.quiz-result-status-incorrect {
+.quiz-result-status-Incorrect {
   color: hsl(0, 100%, 50%);
 }
 

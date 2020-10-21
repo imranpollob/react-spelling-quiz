@@ -52,6 +52,13 @@ export default function Quiz() {
       handleNextQuestion();
     }
   }
+
+  function quizStatus(key, value) {
+    return key.trim().toLowerCase() === value.trim().toLowerCase()
+      ? "Correct"
+      : "Incorrect";
+  }
+
   return (
     <div className="quiz">
       <div className="quiz-container">
@@ -98,19 +105,14 @@ export default function Quiz() {
                 <tbody>
                   {Object.entries(answerMap).map(([key, value]) => (
                     <tr key={uuidv4()}>
-                      <td>{key}</td>
-                      <td>{value}</td>
+                      <td>{key.toLowerCase()}</td>
+                      <td>{value.toLowerCase()}</td>
                       <td
                         className={
-                          "quiz-result-status-" +
-                          (key.toLowerCase() === value.toLowerCase()
-                            ? "correct"
-                            : "incorrect")
+                          "quiz-result-status-" + quizStatus(key, value)
                         }
                       >
-                        {key.toLowerCase() === value.toLowerCase()
-                          ? "Correct"
-                          : "Incorrect"}
+                        {quizStatus(key, value)}
                       </td>
                     </tr>
                   ))}
@@ -121,7 +123,8 @@ export default function Quiz() {
                 Got{" "}
                 {
                   Object.entries(answerMap).filter(
-                    ([key, value]) => key.toLowerCase() === value.toLowerCase()
+                    ([key, value]) =>
+                      key.trim().toLowerCase() === value.trim().toLowerCase()
                   ).length
                 }{" "}
                 out of {totalQuestions}
