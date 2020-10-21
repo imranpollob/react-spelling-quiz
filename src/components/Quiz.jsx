@@ -18,8 +18,6 @@ export default function Quiz() {
   }
 
   function handleNextQuestion() {
-    console.log(currentWord);
-    const ad = { currentWord: answer };
     setAnswerMap({ ...answerMap, [currentWord]: answer });
     let tempWords = [...words];
     tempWords = tempWords.filter((w) => w !== currentWord);
@@ -42,6 +40,7 @@ export default function Quiz() {
     setQuizRunning(1);
     setAnswerMap({});
     let tempWords = JSON.parse(localStorage.getItem("spelling"));
+    // let tempWords = ["abaide", "fox", "success"];
     tempWords = tempWords
       .sort(() => 0.5 - Math.random())
       .slice(0, totalQuestions);
@@ -77,17 +76,27 @@ export default function Quiz() {
         ) : (
           <div>
             <table>
-              <tr>
-                <th>Actual Word</th>
-                <th>Your Answer</th>
-              </tr>
-
-              {Object.entries(answerMap).map(([key, value]) => (
-                <tr key={uuidv4()}>
-                  <td>{key}</td>
-                  <td>{value}</td>
+              <thead>
+                <tr>
+                  <th>Actual Word</th>
+                  <th>Your Answer</th>
+                  <th>Result</th>
                 </tr>
-              ))}
+              </thead>
+
+              <tbody>
+                {Object.entries(answerMap).map(([key, value]) => (
+                  <tr key={uuidv4()}>
+                    <td>{key}</td>
+                    <td>{value}</td>
+                    <td>
+                      {key.toLowerCase() === value.toLowerCase()
+                        ? "Correct"
+                        : "Incorrect"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
 
             <button onClick={() => handleStartQuizAgain()}>

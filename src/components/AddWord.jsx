@@ -16,7 +16,8 @@ export default function AddWord() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(words));
+    const sortedWords = words.sort();
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortedWords));
   }, [words]);
 
   function handleInput(e) {
@@ -35,7 +36,7 @@ export default function AddWord() {
         onKeyDown={(e) => handleInput(e)}
       />
       <ol>
-        {words.sort().map((word) => (
+        {words.map((word) => (
           <li key={uuidv4()}>{word}</li>
         ))}
       </ol>
