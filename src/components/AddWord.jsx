@@ -21,10 +21,17 @@ export default function AddWord() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortedWords));
   }, [words]);
 
+  function handleAddWord(word) {
+    if (!word) {
+      return;
+    }
+    setWords([...words, word]);
+    setCurrentValue("");
+  }
+
   function handleInput(e) {
     if (e.key === "Enter") {
-      setWords([...words, e.target.value]);
-      setCurrentValue("");
+      handleAddWord(e.target.value);
     }
   }
 
@@ -32,7 +39,7 @@ export default function AddWord() {
     <div className="add-word">
       <div className="add-word-container">
         <div className="input-container">
-          <label htmlFor="word">Add a new word and press enter</label>
+          <label htmlFor="word">Add a new word to the list</label>
           <br />
           <input
             name="word"
@@ -41,6 +48,12 @@ export default function AddWord() {
             onChange={(e) => setCurrentValue(e.target.value)}
             onKeyDown={(e) => handleInput(e)}
           />
+          <button
+            className="btn btn--primary add-word__button"
+            onClick={() => handleAddWord(currentValue)}
+          >
+            Add
+          </button>
         </div>
         <ol>
           {words.sort().map((word) => (
