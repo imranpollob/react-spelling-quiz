@@ -8,7 +8,7 @@ import "./../css/app.css";
 function App() {
   return (
     <Router>
-      <div>
+      <nav>
         <ul>
           <li>
             <Link to="/">Home</Link>
@@ -20,19 +20,19 @@ function App() {
             <Link to="/words">Words</Link>
           </li>
         </ul>
+      </nav>
 
-        <Switch>
-          <Route path="/quiz">
-            <Quiz />
-          </Route>
-          <Route path="/words">
-            <AddWord />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-      </div>
+      <Switch>
+        <Route path="/quiz">
+          <Quiz />
+        </Route>
+        <Route path="/words">
+          <AddWord />
+        </Route>
+        <Route path="/">
+          <Home />
+        </Route>
+      </Switch>
     </Router>
   );
 }

@@ -29,14 +29,18 @@ export default function AddWord() {
   }
 
   return (
-    <div className="App">
-      <label>Insert a word</label>
-      <input
-        type="text"
-        value={currentValue}
-        onChange={(e) => setCurrentValue(e.target.value)}
-        onKeyDown={(e) => handleInput(e)}
-      />
+    <div className="add-word-container">
+      <div className="input-container">
+        <label htmlFor="word">Add a new word and press enter</label>
+        <br />
+        <input
+          name="word"
+          type="text"
+          value={currentValue}
+          onChange={(e) => setCurrentValue(e.target.value)}
+          onKeyDown={(e) => handleInput(e)}
+        />
+      </div>
       <ol>
         {words.sort().map((word) => (
           <li key={uuidv4()}>{word}</li>

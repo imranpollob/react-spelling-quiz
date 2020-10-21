@@ -1,6 +1,9 @@
 @import-normalize;
 @import "font.css";
 @import "button.css";
+@import "home.css";
+@import "words.css";
+@import "quiz.css";
 
 *,
 *::before,
@@ -21,4 +24,46 @@ body {
 
 .mr-1 {
   margin-right: 5px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+input {
+  outline: none;
+  border: 1px solid hsl(30, 100%, 50%);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 1.1rem;
+}
+
+nav {
+  border-bottom: 2px solid hsl(30, 100%, 50%);
+}
+
+nav > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  /* column-gap: 10px; */
+  justify-content: center;
+}
+
+nav > ul li {
+  padding: 10px;
+}
+
+nav > ul li a {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+nav > ul li a:hover {
+  /* background-color: red; */
+  text-decoration: none;
+  color: hsl(30, 100%, 50%);
+  font-weight: bold;
 }
