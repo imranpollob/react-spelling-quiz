@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Quiz() {
   const [quizRunning, setQuizRunning] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(10);
-  const [words, setWords] = useState([]); //
-  const [answerMap, setAnswerMap] = useState([]);
+  const [words, setWords] = useState([]);
+  const [answerMap, setAnswerMap] = useState({});
   const [answer, setAnswer] = useState("");
   const [currentWord, CurrentWord] = useState();
 
@@ -17,12 +18,16 @@ export default function Quiz() {
   }
 
   function handleNextQuestion() {
+    console.log(currentWord);
+    const ad = { currentWord: answer };
+    setAnswerMap({ ...answerMap, [currentWord]: answer });
     let tempWords = [...words];
     tempWords = tempWords.filter((w) => w !== currentWord);
     setWords(tempWords);
     const selectedWord = random(tempWords);
     CurrentWord(selectedWord);
     say(selectedWord);
+    setAnswer("");
   }
 
   function handlePlayAgain() {
@@ -35,6 +40,7 @@ export default function Quiz() {
 
   function handleStartQuiz() {
     setQuizRunning(1);
+    setAnswerMap({});
     let tempWords = JSON.parse(localStorage.getItem("spelling"));
     tempWords = tempWords
       .sort(() => 0.5 - Math.random())
@@ -70,6 +76,20 @@ export default function Quiz() {
           </div>
         ) : (
           <div>
+            <table>
+              <tr>
+                <th>Actual Word</th>
+                <th>Your Answer</th>
+              </tr>
+
+              {Object.entries(answerMap).map(([key, value]) => (
+                <tr key={uuidv4()}>
+                  <td>{key}</td>
+                  <td>{value}</td>
+                </tr>
+              ))}
+            </table>
+
             <button onClick={() => handleStartQuizAgain()}>
               Start Again !!!
             </button>
