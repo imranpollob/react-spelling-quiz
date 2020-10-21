@@ -1,3 +1,11 @@
+.add-word {
+  display: flex;
+  justify-content: center;
+}
+.add-word-container {
+  max-width: 500px;
+}
+
 .input-container {
   text-align: left;
   padding: 30px 20px;
