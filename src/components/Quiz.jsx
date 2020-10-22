@@ -6,7 +6,7 @@ import say from "./../helpers/say";
 
 export default function Quiz() {
   const [quizRunning, setQuizRunning] = useState(0);
-  const [totalQuestions, setTotalQuestions] = useState(2);
+  const [totalQuestions, setTotalQuestions] = useState(10);
   const [words, setWords] = useState([]);
   const [answerMap, setAnswerMap] = useState({});
   const [answer, setAnswer] = useState("");
@@ -163,13 +163,18 @@ export default function Quiz() {
 
             <div className="quiz-instructions">
               <ul>
-                <li>You have to write the word on input box as you listen</li>
                 <li>
-                  You may press <span>PLAY</span> to listen the word again
+                  You have to write the word on input box{" "}
+                  <span className="underline bold">as you listen</span>
                 </li>
                 <li>
-                  You may press <span>ENTER</span> key on{" "}
-                  <span>Next QUESTION</span> button to go to the next question
+                  You may press <span className="button">PLAY</span> to listen
+                  the word again
+                </li>
+                <li>
+                  You may press <span className="button">Next QUESTION</span> or
+                  press <span className="button">ENTER</span> key to go to the
+                  next question
                 </li>
               </ul>
             </div>
