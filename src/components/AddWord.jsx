@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { misspelled } from "./MisspelledWords";
+import { successToast, dangerToast } from "./../helpers/toast";
 
 const LOCAL_STORAGE_KEY = "spelling";
 
@@ -25,8 +28,13 @@ export default function AddWord() {
     if (!word) {
       return;
     }
+    if (words.includes(word)) {
+      dangerToast(`"${word}" is already on the list`);
+      return;
+    }
     setWords([...words, word]);
     setCurrentValue("");
+    successToast(`"${word}" is added to the list`);
   }
 
   function handleInput(e) {
@@ -39,10 +47,22 @@ export default function AddWord() {
     let tempWords = [...words];
     tempWords = tempWords.filter((w) => w !== word);
     setWords(tempWords);
+    dangerToast(`"${word}" is removed from the list`);
   }
 
   return (
     <div className="add-word">
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div className="add-word-container">
         <div className="input-container">
           <label htmlFor="word">Add a new word to the list</label>
