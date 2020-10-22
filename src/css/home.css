@@ -1,3 +1,13 @@
 .home-container {
   margin-top: 50px;
 }
+
+.home-image-container {
+  display: grid;
+  place-items: center;
+  padding-top: 20px;
+}
+
+.home-image-container img {
+  max-width: 290px;
+}

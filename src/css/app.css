@@ -30,6 +30,10 @@ body {
   text-align: center;
 }
 
+.is-active {
+  color: hsl(30, 100%, 50%);
+}
+
 input {
   outline: none;
   border: 1px solid hsl(30, 100%, 50%);
@@ -64,6 +68,6 @@ nav > ul li a {
 nav > ul li a:hover {
   /* background-color: red; */
   text-decoration: none;
-  color: hsl(30, 100%, 50%);
+  color: hsl(30, 100%, 40%);
   font-weight: bold;
 }

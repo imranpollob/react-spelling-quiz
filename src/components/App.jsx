@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  NavLink,
+} from "react-router-dom";
 import AddWord from "./AddWord";
 import Quiz from "./Quiz";
 import Home from "./Home";
@@ -11,13 +16,19 @@ function App() {
       <nav>
         <ul>
           <li>
-            <Link to="/">Home</Link>
+            <NavLink activeClassName="is-active" to="/" exact={true}>
+              Home
+            </NavLink>
           </li>
           <li>
-            <Link to="/quiz">Quiz</Link>
+            <NavLink activeClassName="is-active" to="/quiz" exact={true}>
+              Quiz
+            </NavLink>
           </li>
           <li>
-            <Link to="/words">Words</Link>
+            <NavLink activeClassName="is-active" to="/words" exact={true}>
+              Words
+            </NavLink>
           </li>
         </ul>
       </nav>
