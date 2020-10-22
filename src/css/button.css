@@ -28,3 +28,26 @@
   color: white;
   background: hsl(120, 100%, 25%);
 }
+
+.btn--danger {
+  color: white;
+  background: hsl(0, 100%, 50%);
+}
+
+.btn--danger:hover {
+  color: white;
+  background: hsl(0, 100%, 50%);
+}
+
+.btn--danger--outlined {
+  color: black;
+}
+
+.btn--danger--outlined:hover {
+  color: hsl(0, 100%, 50%);
+}
+
+.btn--xm--rounded {
+  padding: 2px 4px 0px 4px;
+  border-radius: 50%;
+}

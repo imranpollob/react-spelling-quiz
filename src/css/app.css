@@ -26,6 +26,10 @@ body {
   margin-right: 5px;
 }
 
+.ml-1 {
+  margin-left: 5px;
+}
+
 .text-center {
   text-align: center;
 }

@@ -35,6 +35,12 @@ export default function AddWord() {
     }
   }
 
+  function handleDeleteWord(word) {
+    let tempWords = [...words];
+    tempWords = tempWords.filter((w) => w !== word);
+    setWords(tempWords);
+  }
+
   return (
     <div className="add-word">
       <div className="add-word-container">
@@ -57,7 +63,15 @@ export default function AddWord() {
         </div>
         <ol>
           {words.sort().map((word) => (
-            <li key={uuidv4()}>{word}</li>
+            <li key={uuidv4()}>
+              {word}{" "}
+              <button
+                className="btn btn--danger--outlined btn--xm--rounded ml-1"
+                onClick={() => handleDeleteWord(word)}
+              >
+                &times;
+              </button>
+            </li>
           ))}
         </ol>
       </div>
