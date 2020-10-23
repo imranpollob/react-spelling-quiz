@@ -5,7 +5,7 @@ import {
   Route,
   NavLink,
 } from "react-router-dom";
-import AddWord from "./AddWord";
+import Words from "./Words";
 import Quiz from "./Quiz";
 import Home from "./Home";
 import "./../css/app.css";
@@ -38,7 +38,7 @@ function App() {
           <Quiz />
         </Route>
         <Route path="/words">
-          <AddWord />
+          <Words />
         </Route>
         <Route path="/">
           <Home />

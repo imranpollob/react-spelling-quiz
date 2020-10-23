@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { misspelled } from "./MisspelledWords";
-import shuffleArray from "./../helpers/array_shuffle";
-import say from "./../helpers/say";
+import shuffleArray from "./../helper-functions/array_shuffle";
+import say from "./../helper-functions/say";
 
 export default function Quiz() {
   const [quizRunning, setQuizRunning] = useState(0);
