@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { misspelled } from "./MisspelledWords";
+import { misspelled } from "../helper-functions/MisspelledWords";
 import { successToast, dangerToast } from "../helper-functions/toast";
 import Toast from "../helper-components/Toast";
 import WordList from "./WordList";
