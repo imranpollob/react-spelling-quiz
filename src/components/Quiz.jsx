@@ -1,16 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import shuffleArray from "./../helper-functions/array_shuffle";
 import say from "./../helper-functions/say";
+import { misspelled } from "../helper-functions/MisspelledWords";
 import QuizNew from "./QuizNew";
 import QuizResult from "./QuizResult";
+
+const LOCAL_STORAGE_KEY = "spelling";
 
 export default function Quiz() {
   const [quizRunning, setQuizRunning] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(10);
-  const [words, setWords] = useState([]);
+  const [words, setWords] = useState(misspelled);
   const [answerMap, setAnswerMap] = useState({});
   const [answer, setAnswer] = useState("");
   const [currentWord, CurrentWord] = useState();
+
+  useEffect(() => {
+    const word_json = localStorage.getItem(LOCAL_STORAGE_KEY);
+
+    if (!word_json) {
+      const sortedWords = words.sort();
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortedWords));
+    }
+  }, [words]);
 
   function handleNextQuestion() {
     setAnswerMap({ ...answerMap, [currentWord]: answer });
@@ -34,7 +46,7 @@ export default function Quiz() {
   function handleStartQuiz() {
     setQuizRunning(1);
     setAnswerMap({});
-    let tempWords = JSON.parse(localStorage.getItem("spelling"));
+    let tempWords = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
     tempWords = shuffleArray(tempWords).slice(0, totalQuestions);
     setWords(tempWords);
     const selectedWord = tempWords[0];
