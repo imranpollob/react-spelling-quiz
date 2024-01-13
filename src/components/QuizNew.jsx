@@ -14,7 +14,7 @@ export default function QuizNew({
           value={totalQuestions}
           onChange={(e) => setTotalQuestions(e.target.value)}
         >
-          <option value={2}>2</option>
+          <option value={5}>5</option>
           <option value={10}>10</option>
           <option value={15}>15</option>
           <option value={20}>20</option>
@@ -31,11 +31,11 @@ export default function QuizNew({
             <span className="underline bold">as you listen</span>
           </li>
           <li>
-            You may press <span className="button">PLAY</span> to listen the
+            You may press <span className="button">LISTEN</span> to listen the
             word again
           </li>
           <li>
-            You may press <span className="button">Next QUESTION</span> or press{" "}
+            You may press <span className="button">NEXT</span> or press{" "}
             <span className="button">ENTER</span> key to go to the next question
           </li>
         </ul>

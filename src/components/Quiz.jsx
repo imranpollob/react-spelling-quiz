@@ -98,13 +98,13 @@ export default function Quiz() {
                 className="btn btn--primary"
                 onClick={() => handlePlayAgain()}
               >
-                Play
+                LISTEN
               </button>
               <button
                 className="btn btn--success"
                 onClick={() => handleNextQuestion()}
               >
-                {words.length === 1 ? "Finish Quiz" : "Next Question"}
+                {words.length === 1 ? "Finish Quiz" : "NEXT"}
               </button>
             </div>
           </>

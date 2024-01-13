@@ -11,3 +11,9 @@
 .home-image-container img {
   max-width: 290px;
 }
+
+a {
+  text-decoration: underline;
+  color: hsl(30, 100%, 50%);
+  font-weight: bold;
+}
