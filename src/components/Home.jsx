@@ -93,30 +93,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* Stats Section */}
-      <div className="bg-slate-100 dark:bg-slate-800 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">277+</div>
-              <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Words Available</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-green-600 dark:text-green-400">3</div>
-              <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Difficulty Levels</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">∞</div>
-              <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Practice Sessions</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-orange-600 dark:text-orange-400">100%</div>
-              <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Free to Use</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

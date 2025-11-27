@@ -23,11 +23,6 @@ export default function WordList({ words, handleDeleteWord, currentUserId }) {
                 <span className="font-medium text-slate-800 dark:text-slate-200 truncate">
                   {wordObj.word}
                 </span>
-                {wordObj.isGlobal && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-semibold">
-                    Global
-                  </span>
-                )}
                 {!wordObj.isGlobal && isOwnWord && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 font-semibold">
                     Mine
@@ -37,6 +32,16 @@ export default function WordList({ words, handleDeleteWord, currentUserId }) {
             </div>
 
             <div className="flex items-center gap-1 flex-shrink-0">
+              <a
+                href={`https://www.vocabulary.com/dictionary/${encodeURIComponent(wordObj.word)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-600 dark:text-primary-400 transition-colors duration-200"
+                title="Look up word on Vocabulary.com"
+              >
+                <span className="text-lg leading-none">📖</span>
+              </a>
+
               <button
                 onClick={() => say(wordObj.word)}
                 className="p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-600 dark:text-primary-400 transition-colors duration-200"
