@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import migrateToFirebase from '../scripts/migrateToFirebase';
-import importAllWords from '../scripts/bulkImport';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import words from '../data/words';

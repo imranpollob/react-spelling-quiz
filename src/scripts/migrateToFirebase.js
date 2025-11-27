@@ -48,7 +48,6 @@ async function migrateToFirebase() {
 
   console.log('Starting migration of', words.length, 'words to Firestore...');
 
-  const batch = writeBatch(db);
   const wordsRef = collection(db, 'words');
   let count = 0;
 

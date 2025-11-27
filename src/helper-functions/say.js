@@ -1,4 +1,4 @@
-const { REACT_APP_VOICE_RSS_API_KEY } = process.env;
+const { REACT_APP_VOICERSS_DOT_ORG_API_KEY } = process.env;
 
 export default function say(word) {
   if ("speechSynthesis" in window) {
@@ -13,7 +13,7 @@ function say2(word) {
   let audio;
 
   fetch(
-    `http://api.voicerss.org/?key=${REACT_APP_VOICE_RSS_API_KEY}&hl=en-us&v=Mary&c=MP3&src=${word}`
+    `http://api.voicerss.org/?key=${REACT_APP_VOICERSS_DOT_ORG_API_KEY}&hl=en-us&v=Mary&c=MP3&src=${word}`
   )
     .then((data) => data.arrayBuffer())
     .then((arrayBuffer) => ctx.decodeAudioData(arrayBuffer))

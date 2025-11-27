@@ -1,23 +1,75 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 📝 Spelling Quiz
 
-## Available Scripts
+A React-based spelling quiz application with Firebase backend and 835+ commonly misspelled words.
 
-In the project directory, you can run:
+![](screenshot1.png)
+![](screenshot2.png)
+![](screenshot3.png)
 
-### `yarn start`
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Features
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+- 🎯 Interactive spelling quizzes with multiple difficulty levels
+- 🔊 Audio pronunciation using Web Speech API
+- 🔐 User authentication (Email, Google, or Anonymous)
+- 📚 Word library with 835+ words
+- 🎨 Modern UI with dark mode support
+- � Tiered access: Admin, Registered Users, and Guests
 
-### `yarn build`
+## Setup
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+2. **Configure Firebase**
+   
+   Create `.env` file with your Firebase credentials:
+   ```env
+   REACT_APP_FIREBASE_API_KEY=your_api_key
+   REACT_APP_FIREBASE_AUTH_DOMAIN=your_domain
+   REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+   REACT_APP_FIREBASE_STORAGE_BUCKET=your_bucket
+   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   REACT_APP_FIREBASE_APP_ID=your_app_id
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+   REACT_APP_VOICERSS_DOT_ORG_API_KEY=your-api-key-here
+   ```
+
+3. **Start the app**
+   ```bash
+   npm start
+   ```
+   Open [http://localhost:3000](http://localhost:3000)
+
+4. **Import words** (Admin only)
+   - Login as admin (`polboy777@gmail.com`)
+   - Go to `/admin`
+   - Click "Import 835 Words"
+
+## User Roles
+
+| Role           | Can Add Words             | Word Visibility | Can Delete |
+| -------------- | ------------------------- | --------------- | ---------- |
+| **Admin**      | Global words (all users)  | All             | Any word   |
+| **Registered** | Personal words (own only) | Global + Own    | Own only   |
+| **Guest**      | No (prompted to sign up)  | Global only     | None       |
+
+## Tech Stack
+
+- React 18
+- Firebase (Firestore, Auth)
+- Tailwind CSS
+- React Router v6
+- Web Speech API
+
+## Build
+
+```bash
+npm run build
+```
+
+## License
+
+MIT

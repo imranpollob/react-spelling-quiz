@@ -142,6 +142,10 @@ export default function Quiz() {
                 placeholder="Type the word here..."
                 className="w-full px-6 py-4 text-xl text-center rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 backdrop-blur-sm"
                 autoFocus
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
               />
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
