@@ -3,23 +3,26 @@ import { v4 as uuidv4 } from "uuid";
 import say from "../helper-functions/say";
 
 export default function WordList({ words, handleDeleteWord }) {
+  // Sort words alphabetically by word text
+  const sortedWords = [...words].sort((a, b) => a.word.localeCompare(b.word));
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[600px] overflow-y-auto pr-2">
-      {words.sort().map((word, index) => (
+      {sortedWords.map((wordObj, index) => (
         <div
-          key={uuidv4()}
+          key={wordObj.id || uuidv4()}
           className="group flex items-center justify-between gap-2 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-600 transition-all duration-300 hover:shadow-md animate-slide-in"
           style={{ animationDelay: `${index * 20}ms` }}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <span className="font-medium text-slate-800 dark:text-slate-200 truncate">
-              {word}
+              {wordObj.word}
             </span>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
-              onClick={() => say(word)}
+              onClick={() => say(wordObj.word)}
               className="p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-600 dark:text-primary-400 transition-colors duration-200"
               title="Pronounce word"
             >
@@ -28,7 +31,7 @@ export default function WordList({ words, handleDeleteWord }) {
               </svg>
             </button>
             <button
-              onClick={() => handleDeleteWord(word)}
+              onClick={() => handleDeleteWord(wordObj.id, wordObj.word)}
               className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 transition-colors duration-200 font-bold text-lg leading-none"
               title="Remove word"
             >

@@ -1,39 +1,47 @@
-import React, { useState, useEffect } from "react";
-import { misspelled } from "../helper-functions/MisspelledWords";
+import React, { useState } from "react";
+import { addWord, deleteWord } from "../services/wordService";
+import { useWords } from "../hooks/useWords";
 import { successToast, dangerToast } from "../helper-functions/toast";
 import Toast from "../helper-components/Toast";
 import WordList from "./WordList";
 
-const LOCAL_STORAGE_KEY = "spelling";
-
 export default function Words() {
-  const [words, setWords] = useState(misspelled);
+  const { words, loading, refreshWords } = useWords();
   const [currentValue, setCurrentValue] = useState("");
+  const [adding, setAdding] = useState(false);
 
-  useEffect(() => {
-    const word_json = localStorage.getItem(LOCAL_STORAGE_KEY);
-
-    if (word_json) {
-      setWords(JSON.parse(word_json));
-    }
-  }, []);
-
-  useEffect(() => {
-    const sortedWords = words.sort();
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortedWords));
-  }, [words]);
-
-  function handleAddWord(word) {
+  async function handleAddWord(word) {
     if (!word) {
       return;
     }
-    if (words.includes(word)) {
+
+    const cleanWord = word.trim().toLowerCase();
+
+    // Check if word already exists
+    if (words.some(w => w.word === cleanWord)) {
       dangerToast(`"${word}" is already on the list`);
       return;
     }
-    setWords([...words, word]);
-    setCurrentValue("");
-    successToast(`"${word}" is added to the list`);
+
+    setAdding(true);
+    try {
+      await addWord({
+        word: cleanWord,
+        difficulty: 'intermediate',
+        category: 'custom',
+        source: 'user-contributed'
+      });
+
+      setCurrentValue("");
+      successToast(`"${word}" is added to the list`);
+
+      // Refresh the word list
+      await refreshWords();
+    } catch (error) {
+      dangerToast(`Failed to add word: ${error.message}`);
+    } finally {
+      setAdding(false);
+    }
   }
 
   function handleInput(e) {
@@ -42,11 +50,24 @@ export default function Words() {
     }
   }
 
-  function handleDeleteWord(word) {
-    let tempWords = [...words];
-    tempWords = tempWords.filter((w) => w !== word);
-    setWords(tempWords);
-    dangerToast(`"${word}" is removed from the list`);
+  async function handleDeleteWord(wordId, wordText) {
+    try {
+      await deleteWord(wordId);
+      dangerToast(`"${wordText}" is removed from the list`);
+
+      // Refresh the word list
+      await refreshWords();
+    } catch (error) {
+      dangerToast(`Failed to remove word: ${error.message}`);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-73px)] flex items-center justify-center">
+        <div className="text-2xl font-bold text-gradient">Loading words...</div>
+      </div>
+    );
   }
 
   return (
@@ -70,13 +91,15 @@ export default function Words() {
               onChange={(e) => setCurrentValue(e.target.value)}
               onKeyDown={(e) => handleInput(e)}
               placeholder="Enter a new word..."
-              className="flex-1 px-6 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 backdrop-blur-sm"
+              disabled={adding}
+              className="flex-1 px-6 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 backdrop-blur-sm disabled:opacity-50"
             />
             <button
               className="btn btn--primary px-8"
               onClick={() => handleAddWord(currentValue)}
+              disabled={adding}
             >
-              Add Word
+              {adding ? 'Adding...' : 'Add Word'}
             </button>
           </div>
         </div>

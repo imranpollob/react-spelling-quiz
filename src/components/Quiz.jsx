@@ -1,37 +1,29 @@
 import React, { useState, useEffect } from "react";
 import shuffleArray from "./../helper-functions/array_shuffle";
 import say from "./../helper-functions/say";
-import { misspelled } from "../helper-functions/MisspelledWords";
+import { useWords } from "../hooks/useWords";
 import QuizNew from "./QuizNew";
 import QuizResult from "./QuizResult";
 
-const LOCAL_STORAGE_KEY = "spelling";
-
 export default function Quiz() {
+  const { words: allWords, loading: wordsLoading } = useWords();
   const [quizRunning, setQuizRunning] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(10);
-  const [words, setWords] = useState(misspelled);
+  const [words, setWords] = useState([]);
   const [answerMap, setAnswerMap] = useState({});
   const [answer, setAnswer] = useState("");
   const [currentWord, CurrentWord] = useState();
 
-  useEffect(() => {
-    const word_json = localStorage.getItem(LOCAL_STORAGE_KEY);
-
-    if (!word_json) {
-      const sortedWords = words.sort();
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortedWords));
-    }
-  }, [words]);
-
   function handleNextQuestion() {
     setAnswerMap({ ...answerMap, [currentWord]: answer });
     let tempWords = [...words];
-    tempWords = tempWords.filter((w) => w !== currentWord);
+    tempWords = tempWords.filter((w) => w.word !== currentWord);
     setWords(tempWords);
-    const selectedWord = tempWords[0];
+    const selectedWord = tempWords[0]?.word;
     CurrentWord(selectedWord);
-    say(selectedWord);
+    if (selectedWord) {
+      say(selectedWord);
+    }
     setAnswer("");
   }
 
@@ -46,12 +38,16 @@ export default function Quiz() {
   function handleStartQuiz() {
     setQuizRunning(1);
     setAnswerMap({});
-    let tempWords = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-    tempWords = shuffleArray(tempWords).slice(0, totalQuestions);
+
+    // Get words from Firestore and shuffle
+    let tempWords = shuffleArray([...allWords]).slice(0, totalQuestions);
     setWords(tempWords);
-    const selectedWord = tempWords[0];
+
+    const selectedWord = tempWords[0]?.word;
     CurrentWord(selectedWord);
-    say(selectedWord);
+    if (selectedWord) {
+      say(selectedWord);
+    }
   }
 
   function handleStartQuizAgain() {
@@ -69,6 +65,31 @@ export default function Quiz() {
     return key.trim().toLowerCase() === value.trim().toLowerCase()
       ? "Correct"
       : "Incorrect";
+  }
+
+  // Show loading state while fetching words
+  if (wordsLoading) {
+    return (
+      <div className="min-h-[calc(100vh-73px)] flex items-center justify-center">
+        <div className="text-2xl font-bold text-gradient">Loading words...</div>
+      </div>
+    );
+  }
+
+  // Show error if no words available
+  if (!allWords || allWords.length === 0) {
+    return (
+      <div className="min-h-[calc(100vh-73px)] flex items-center justify-center p-6">
+        <div className="glass rounded-3xl p-8 text-center">
+          <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+            No Words Available
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400">
+            Please run the migration from the Migrate page first.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
