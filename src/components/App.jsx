@@ -1,14 +1,13 @@
 import React from "react";
 import {
   BrowserRouter as Router,
-  Switch,
+  Routes,
   Route,
   NavLink,
 } from "react-router-dom";
 import Words from "./Words";
 import Quiz from "./Quiz";
 import Home from "./Home";
-import "./../css/app.css";
 
 function App() {
   return (
@@ -16,34 +15,37 @@ function App() {
       <nav>
         <ul>
           <li>
-            <NavLink activeClassName="is-active" to="/" exact={true}>
+            <NavLink
+              className={({ isActive }) => isActive ? "is-active" : ""}
+              to="/"
+            >
               Home
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName="is-active" to="/quiz" exact={true}>
+            <NavLink
+              className={({ isActive }) => isActive ? "is-active" : ""}
+              to="/quiz"
+            >
               Quiz
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName="is-active" to="/words" exact={true}>
+            <NavLink
+              className={({ isActive }) => isActive ? "is-active" : ""}
+              to="/words"
+            >
               Words
             </NavLink>
           </li>
         </ul>
       </nav>
 
-      <Switch>
-        <Route path="/quiz">
-          <Quiz />
-        </Route>
-        <Route path="/words">
-          <Words />
-        </Route>
-        <Route path="/">
-          <Home />
-        </Route>
-      </Switch>
+      <Routes>
+        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/words" element={<Words />} />
+        <Route path="/" element={<Home />} />
+      </Routes>
     </Router>
   );
 }
