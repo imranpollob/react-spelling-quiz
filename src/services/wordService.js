@@ -3,14 +3,12 @@ import {
   collection,
   getDocs,
   getDoc,
-  addDoc,
   setDoc,
   updateDoc,
   deleteDoc,
   doc,
   query,
   where,
-  orderBy,
   limit
 } from 'firebase/firestore';
 

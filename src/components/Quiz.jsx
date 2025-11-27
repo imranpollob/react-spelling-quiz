@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import shuffleArray from "./../helper-functions/array_shuffle";
 import say from "./../helper-functions/say";
 import { useWords } from "../hooks/useWords";

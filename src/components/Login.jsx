@@ -12,7 +12,7 @@ export default function Login({ onClose }) {
 
   const handleAnonymous = async () => {
     setLoading(true);
-    const { user, error } = await signInAnonymous();
+    const { error } = await signInAnonymous();
     setLoading(false);
 
     if (error) {
@@ -28,7 +28,7 @@ export default function Login({ onClose }) {
     setLoading(true);
 
     if (isSignUp) {
-      const { user, error } = await signUpWithEmail(email, password, displayName);
+      const { error } = await signUpWithEmail(email, password, displayName);
       setLoading(false);
 
       if (error) {
@@ -38,7 +38,7 @@ export default function Login({ onClose }) {
         onClose?.();
       }
     } else {
-      const { user, error } = await signInWithEmail(email, password);
+      const { error } = await signInWithEmail(email, password);
       setLoading(false);
 
       if (error) {
@@ -52,7 +52,7 @@ export default function Login({ onClose }) {
 
   const handleGoogleAuth = async () => {
     setLoading(true);
-    const { user, error } = await signInWithGoogle();
+    const { error } = await signInWithGoogle();
     setLoading(false);
 
     if (error) {
