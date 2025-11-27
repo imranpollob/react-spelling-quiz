@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import shuffleArray from "./../helper-functions/array_shuffle";
 import say from "./../helper-functions/say";
 import { useWords } from "../hooks/useWords";
+import { useAuth } from "../contexts/AuthContext";
 import QuizNew from "./QuizNew";
 import QuizResult from "./QuizResult";
 
 export default function Quiz() {
-  const { words: allWords, loading: wordsLoading } = useWords();
+  const { user } = useAuth();
+  const { words: allWords, loading: wordsLoading } = useWords(user?.uid);
   const [quizRunning, setQuizRunning] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(10);
   const [words, setWords] = useState([]);

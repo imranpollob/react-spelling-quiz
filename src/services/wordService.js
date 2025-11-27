@@ -4,6 +4,7 @@ import {
   getDocs,
   getDoc,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   doc,
@@ -14,15 +15,22 @@ import {
 } from 'firebase/firestore';
 
 const WORDS_COLLECTION = 'words';
+const ADMIN_EMAIL = 'polboy777@gmail.com';
 
 /**
- * Get all words from Firestore
+ * Get all words from Firestore (global + user-specific)
+ * @param {string} userId - Current user's ID
  */
-export async function getAllWords() {
+export async function getAllWords(userId = null) {
   try {
     const wordsRef = collection(db, WORDS_COLLECTION);
     const snapshot = await getDocs(wordsRef);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const allWords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Filter: return global words + words created by this user
+    return allWords.filter(word =>
+      word.isGlobal || word.userId === userId
+    );
   } catch (error) {
     console.error('Error fetching words:', error);
     throw error;
@@ -100,22 +108,36 @@ export async function getWordById(wordId) {
 
 /**
  * Add a new word to Firestore
+ * @param {object} wordData - Word data
+ * @param {string} userId - User ID adding the word
+ * @param {string} userEmail - User email to check if admin
  */
-export async function addWord(wordData) {
+export async function addWord(wordData, userId, userEmail) {
   try {
     const wordsRef = collection(db, WORDS_COLLECTION);
-    const docRef = await addDoc(wordsRef, {
+    const newDocRef = doc(wordsRef);
+
+    // Check if user is admin
+    const isAdmin = userEmail === ADMIN_EMAIL;
+
+    const wordDocument = {
       ...wordData,
       word: wordData.word.toLowerCase().trim(),
       addedDate: new Date(),
-      source: wordData.source || 'user-contributed',
-      verified: wordData.verified || false,
+      source: isAdmin ? 'admin' : 'user-contributed',
+      verified: isAdmin, // Admin words are auto-verified
       usageCount: 0,
       category: wordData.category || 'custom',
-      difficulty: wordData.difficulty || 'intermediate'
-    });
+      difficulty: wordData.difficulty || 'intermediate',
+      // Access control fields
+      isGlobal: isAdmin, // Only admin words are global
+      userId: isAdmin ? null : userId, // Admin words don't have userId
+      createdBy: userEmail
+    };
 
-    return { id: docRef.id, ...wordData };
+    await setDoc(newDocRef, wordDocument);
+
+    return { id: newDocRef.id, ...wordData };
   } catch (error) {
     console.error('Error adding word:', error);
     throw error;

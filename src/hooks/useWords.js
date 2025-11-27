@@ -3,8 +3,9 @@ import { getAllWords } from '../services/wordService';
 
 /**
  * Custom hook to fetch and cache words from Firestore
+ * @param {string} userId - Current user's ID for filtering
  */
-export function useWords() {
+export function useWords(userId = null) {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,8 +14,10 @@ export function useWords() {
     async function fetchWords() {
       try {
         // Check session cache first
-        const cachedWords = sessionStorage.getItem('words_cache');
-        const cacheTimestamp = sessionStorage.getItem('words_cache_timestamp');
+        const cacheKey = `words_cache_${userId || 'global'}`;
+        const timestampKey = `words_cache_timestamp_${userId || 'global'}`;
+        const cachedWords = sessionStorage.getItem(cacheKey);
+        const cacheTimestamp = sessionStorage.getItem(timestampKey);
         const now = Date.now();
 
         // Use cache if less than 5 minutes old
@@ -25,12 +28,12 @@ export function useWords() {
         }
 
         // Fetch from Firestore
-        const wordsData = await getAllWords();
+        const wordsData = await getAllWords(userId);
         setWords(wordsData);
 
         // Cache the results
-        sessionStorage.setItem('words_cache', JSON.stringify(wordsData));
-        sessionStorage.setItem('words_cache_timestamp', now.toString());
+        sessionStorage.setItem(cacheKey, JSON.stringify(wordsData));
+        sessionStorage.setItem(timestampKey, now.toString());
 
         setLoading(false);
       } catch (err) {
@@ -41,15 +44,17 @@ export function useWords() {
     }
 
     fetchWords();
-  }, []);
+  }, [userId]);
 
   const refreshWords = async () => {
     setLoading(true);
     try {
-      const wordsData = await getAllWords();
+      const wordsData = await getAllWords(userId);
       setWords(wordsData);
-      sessionStorage.setItem('words_cache', JSON.stringify(wordsData));
-      sessionStorage.setItem('words_cache_timestamp', Date.now().toString());
+      const cacheKey = `words_cache_${userId || 'global'}`;
+      const timestampKey = `words_cache_timestamp_${userId || 'global'}`;
+      sessionStorage.setItem(cacheKey, JSON.stringify(wordsData));
+      sessionStorage.setItem(timestampKey, Date.now().toString());
       setLoading(false);
     } catch (err) {
       setError(err.message);

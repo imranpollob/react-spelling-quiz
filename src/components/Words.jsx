@@ -1,25 +1,37 @@
 import React, { useState } from "react";
 import { addWord, deleteWord } from "../services/wordService";
 import { useWords } from "../hooks/useWords";
-import { successToast, dangerToast } from "../helper-functions/toast";
+import { useAuth } from "../contexts/AuthContext";
+import { successToast, dangerToast, infoToast } from "../helper-functions/toast";
 import Toast from "../helper-components/Toast";
 import WordList from "./WordList";
 
+const ADMIN_EMAIL = 'polboy777@gmail.com';
+
 export default function Words() {
-  const { words, loading, refreshWords } = useWords();
+  const { user, isAnonymous } = useAuth();
+  const { words, loading, refreshWords } = useWords(user?.uid);
   const [currentValue, setCurrentValue] = useState("");
   const [adding, setAdding] = useState(false);
+
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   async function handleAddWord(word) {
     if (!word) {
       return;
     }
 
+    // Check if guest user
+    if (isAnonymous) {
+      infoToast("Please sign up to add your own words!");
+      return;
+    }
+
     const cleanWord = word.trim().toLowerCase();
 
-    // Check if word already exists
+    // Check if word already exists (in user's list or globally)
     if (words.some(w => w.word === cleanWord)) {
-      dangerToast(`"${word}" is already on the list`);
+      dangerToast(`"${word}" is already in your word list`);
       return;
     }
 
@@ -28,12 +40,16 @@ export default function Words() {
       await addWord({
         word: cleanWord,
         difficulty: 'intermediate',
-        category: 'custom',
-        source: 'user-contributed'
-      });
+        category: 'custom'
+      }, user.uid, user.email);
 
       setCurrentValue("");
-      successToast(`"${word}" is added to the list`);
+
+      if (isAdmin) {
+        successToast(`"${word}" added globally for all users!`);
+      } else {
+        successToast(`"${word}" added to your personal list!`);
+      }
 
       // Refresh the word list
       await refreshWords();
@@ -50,10 +66,16 @@ export default function Words() {
     }
   }
 
-  async function handleDeleteWord(wordId, wordText) {
+  async function handleDeleteWord(wordId, wordText, wordData) {
+    // Only allow deleting own words (or admin can delete any)
+    if (!isAdmin && wordData.userId !== user?.uid) {
+      dangerToast("You can only delete your own words");
+      return;
+    }
+
     try {
       await deleteWord(wordId);
-      dangerToast(`"${wordText}" is removed from the list`);
+      dangerToast(`"${wordText}" removed from ${wordData.isGlobal ? 'global' : 'your'} list`);
 
       // Refresh the word list
       await refreshWords();
@@ -70,6 +92,10 @@ export default function Words() {
     );
   }
 
+  // Separate words by type for display
+  const globalWords = words.filter(w => w.isGlobal);
+  const personalWords = words.filter(w => !w.isGlobal);
+
   return (
     <div className="min-h-[calc(100vh-73px)] flex justify-center p-6 animate-fade-in">
       <Toast />
@@ -78,30 +104,68 @@ export default function Words() {
         <div className="glass rounded-3xl p-8 md:p-12 shadow-2xl mb-6">
           <div className="text-center mb-6">
             <h2 className="text-3xl font-bold text-gradient mb-2">Manage Words</h2>
-            <p className="text-slate-600 dark:text-slate-400">
-              You have <span className="font-bold text-primary-600 dark:text-primary-400">{words.length}</span> words in your library
-            </p>
+            <div className="space-y-1">
+              <p className="text-slate-600 dark:text-slate-400">
+                <span className="font-bold text-primary-600 dark:text-primary-400">{globalWords.length}</span> global words
+                {!isAnonymous && (
+                  <>
+                    {' + '}
+                    <span className="font-bold text-purple-600 dark:text-purple-400">{personalWords.length}</span> your words
+                  </>
+                )}
+              </p>
+              {isAdmin && (
+                <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
+                  👑 Admin: Your words are visible to all users
+                </p>
+              )}
+              {!isAdmin && !isAnonymous && (
+                <p className="text-sm text-purple-600 dark:text-purple-400">
+                  📝 Your personal words are only visible to you
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              name="word"
-              type="text"
-              value={currentValue}
-              onChange={(e) => setCurrentValue(e.target.value)}
-              onKeyDown={(e) => handleInput(e)}
-              placeholder="Enter a new word..."
-              disabled={adding}
-              className="flex-1 px-6 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 backdrop-blur-sm disabled:opacity-50"
-            />
-            <button
-              className="btn btn--primary px-8"
-              onClick={() => handleAddWord(currentValue)}
-              disabled={adding}
-            >
-              {adding ? 'Adding...' : 'Add Word'}
-            </button>
-          </div>
+          {isAnonymous ? (
+            <div className="card bg-blue-50/50 dark:bg-blue-950/30 p-6 text-center">
+              <svg className="w-12 h-12 mx-auto mb-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <h3 className="font-bold text-lg mb-2 text-slate-800 dark:text-slate-200">
+                Sign Up to Add Words
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                Guest users can only practice with existing words. Create an account to build your personal word list!
+              </p>
+              <button
+                onClick={() => window.location.reload()} // This will show login screen
+                className="btn btn--primary"
+              >
+                Sign Up Now
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                name="word"
+                type="text"
+                value={currentValue}
+                onChange={(e) => setCurrentValue(e.target.value)}
+                onKeyDown={(e) => handleInput(e)}
+                placeholder="Enter a new word..."
+                disabled={adding}
+                className="flex-1 px-6 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-800 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-300 backdrop-blur-sm disabled:opacity-50"
+              />
+              <button
+                className="btn btn--primary px-8"
+                onClick={() => handleAddWord(currentValue)}
+                disabled={adding}
+              >
+                {adding ? 'Adding...' : (isAdmin ? 'Add Global Word' : 'Add My Word')}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Word List Card */}
@@ -112,7 +176,7 @@ export default function Words() {
             </svg>
             Word Library
           </h3>
-          <WordList words={words} handleDeleteWord={handleDeleteWord} />
+          <WordList words={words} handleDeleteWord={handleDeleteWord} currentUserId={user?.uid} />
         </div>
       </div>
     </div>

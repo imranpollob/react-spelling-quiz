@@ -1,5 +1,5 @@
 import { db } from '../services/firebase';
-import { collection, writeBatch, doc } from 'firebase/firestore';
+import { collection, writeBatch, doc, setDoc, getDoc } from 'firebase/firestore';
 import { misspelled } from '../helper-functions/MisspelledWords';
 
 /**
@@ -21,6 +21,31 @@ function assignDifficulty(word) {
 }
 
 async function migrateWordsToFirestore() {
+  console.log('Checking if migration has already been run...');
+
+  // Check if migration has already been completed
+  try {
+    const migrationStatusRef = doc(db, '_system', 'migration_status');
+    const migrationStatusDoc = await getDoc(migrationStatusRef);
+
+    if (migrationStatusDoc.exists() && migrationStatusDoc.data().defaultWordsImported) {
+      console.warn('⚠️ Migration has already been completed!');
+      console.log('Migration date:', migrationStatusDoc.data().importDate?.toDate());
+      console.log('Words imported:', migrationStatusDoc.data().wordCount);
+
+      const confirmRemigrate = window.confirm(
+        'Migration has already been run. Running it again will create duplicate words. Continue anyway?'
+      );
+
+      if (!confirmRemigrate) {
+        console.log('Migration cancelled by user');
+        return 0;
+      }
+    }
+  } catch (error) {
+    console.log('No previous migration found, proceeding...');
+  }
+
   console.log('Starting migration of', misspelled.length, 'words to Firestore...');
 
   const batch = writeBatch(db);
@@ -55,7 +80,11 @@ async function migrateWordsToFirestore() {
         source: 'default',
         verified: true,
         usageCount: 0,
-        difficultyScore: 0.5
+        difficultyScore: 0.5,
+        // Access control - all default words are global
+        isGlobal: true,
+        userId: null,
+        createdBy: 'system'
       });
 
       count++;
@@ -64,6 +93,15 @@ async function migrateWordsToFirestore() {
     await currentBatch.commit();
     console.log(`Migrated ${count} / ${misspelled.length} words...`);
   }
+
+  // Mark migration as completed
+  const migrationStatusRef = doc(db, '_system', 'migration_status');
+  await setDoc(migrationStatusRef, {
+    defaultWordsImported: true,
+    importDate: new Date(),
+    wordCount: count,
+    source: 'MisspelledWords.js'
+  });
 
   console.log('✅ Migration complete!', count, 'words added to Firestore');
   return count;
