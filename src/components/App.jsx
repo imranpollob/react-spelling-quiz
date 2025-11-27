@@ -88,6 +88,21 @@ function AppContent() {
                   Words
                 </NavLink>
 
+                {/* Admin-only link to migration page */}
+                {user?.email === 'polboy777@gmail.com' && (
+                  <NavLink
+                    to="/admin"
+                    className={({ isActive }) =>
+                      `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
+                        ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'
+                        : 'text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                      }`
+                    }
+                  >
+                    🔧 Admin
+                  </NavLink>
+                )}
+
                 {/* User Menu */}
                 <div className="ml-4 pl-4 border-l border-slate-200 dark:border-slate-700 flex items-center gap-3">
                   <div className="flex items-center gap-2">
@@ -122,7 +137,7 @@ function AppContent() {
           <Routes>
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/words" element={<Words />} />
-            <Route path="/migrate" element={<MigrationTest />} />
+            <Route path="/admin" element={<MigrationTest />} />
             <Route path="/" element={<Home />} />
           </Routes>
         </main>

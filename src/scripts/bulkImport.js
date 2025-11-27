@@ -1,97 +1,83 @@
 import { db } from '../services/firebase';
-import { collection, writeBatch, doc } from 'firebase/firestore';
-import beginnerWords from '../data/wordSources/beginnerWords.json';
-import intermediateWords from '../data/wordSources/intermediateWords.json';
+import { collection, doc, writeBatch } from 'firebase/firestore';
+import words from '../data/words';
 
 /**
- * Bulk import words from JSON files to Firestore
- * This script imports additional words with rich metadata
+ * Bulk import words from words.js into Firestore
+ * @param {Array} wordList - Array of word strings
+ * @param {string} sourceName - Source identifier for tracking
  */
-
-async function bulkImportWords(wordsArray, sourceName = 'bulk-import') {
-  console.log(`Starting bulk import of ${wordsArray.length} words from ${sourceName}...`);
-
-  const batchSize = 500; // Firestore batch limit
+async function bulkImportWords(wordList, sourceName) {
+  const wordsRef = collection(db, 'words');
+  let batch = writeBatch(db);
   let totalImported = 0;
+  const BATCH_SIZE = 500;
 
-  for (let i = 0; i < wordsArray.length; i += batchSize) {
-    const wordsBatch = wordsArray.slice(i, i + batchSize);
-    const batch = writeBatch(db);
-    const wordsRef = collection(db, 'words');
+  for (let i = 0; i < wordList.length; i++) {
+    const wordText = typeof wordList[i] === 'string' ? wordList[i] : wordList[i].word;
+    const wordData = typeof wordList[i] === 'string'
+      ? { word: wordText }
+      : wordList[i];
 
-    for (const wordData of wordsBatch) {
-      const newDocRef = doc(wordsRef);
+    const newDocRef = doc(wordsRef);
 
-      batch.set(newDocRef, {
-        word: wordData.word.toLowerCase().trim(),
-        difficulty: wordData.difficulty || 'intermediate',
-        category: wordData.category || 'general',
-        definition: wordData.definition || '',
-        exampleSentence: wordData.exampleSentence || '',
-        commonMistakes: wordData.commonMistakes || [],
-        syllables: wordData.syllables || '',
-        phonetic: wordData.phonetic || '',
-        etymology: wordData.etymology || '',
-        partOfSpeech: wordData.partOfSpeech || '',
-        synonyms: wordData.synonyms || [],
-        tags: wordData.tags || [],
-        addedDate: new Date(),
-        source: sourceName,
-        verified: true,
-        usageCount: 0,
-        difficultyScore: 0.5,
-        // Access control - bulk imported words are global
-        isGlobal: true,
-        userId: null,
-        createdBy: 'system'
-      });
+    batch.set(newDocRef, {
+      word: wordText.toLowerCase().trim(),
+      difficulty: wordData.difficulty || 'intermediate',
+      category: wordData.category || 'commonly-misspelled',
+      definition: wordData.definition || '',
+      exampleSentence: wordData.exampleSentence || '',
+      commonMistakes: wordData.commonMistakes || [],
+      syllables: wordData.syllables || '',
+      phonetic: wordData.phonetic || '',
+      etymology: wordData.etymology || '',
+      partOfSpeech: wordData.partOfSpeech || '',
+      synonyms: wordData.synonyms || [],
+      tags: wordData.tags || [],
+      addedDate: new Date(),
+      source: sourceName,
+      verified: true,
+      usageCount: 0,
+      difficultyScore: 0.5,
+      // Access control - bulk imported words are global
+      isGlobal: true,
+      userId: null,
+      createdBy: 'system'
+    });
 
-      totalImported++;
+    totalImported++;
+
+    // Commit batch every BATCH_SIZE documents
+    if ((i + 1) % BATCH_SIZE === 0) {
+      await batch.commit();
+      console.log(`Imported ${i + 1} words...`);
+      batch = writeBatch(db);
     }
-
-    await batch.commit();
-    console.log(`Imported ${totalImported} / ${wordsArray.length} words...`);
   }
 
-  console.log(`✅ Bulk import complete! ${totalImported} words added to Firestore`);
+  // Commit remaining documents
+  if (totalImported % BATCH_SIZE !== 0) {
+    await batch.commit();
+  }
+
   return totalImported;
 }
 
 /**
- * Import beginner words
+ * Import all words from words.js
  */
-export async function importBeginnerWords() {
-  return await bulkImportWords(beginnerWords, 'beginner-words-collection');
-}
-
-/**
- * Import intermediate words
- */
-export async function importIntermediateWords() {
-  return await bulkImportWords(intermediateWords, 'intermediate-words-collection');
-}
-
-/**
- * Main import function - call this from the UI
- */
-export async function importAllNewWords() {
-  let total = 0;
+export async function importAllWords() {
+  console.log('Starting bulk import of all words...');
 
   try {
-    console.log('Starting word import process...\n');
+    const wordCount = await bulkImportWords(words, 'words.js');
 
-    const beginnerCount = await importBeginnerWords();
-    total += beginnerCount;
-
-    const intermediateCount = await importIntermediateWords();
-    total += intermediateCount;
-
-    console.log(`\n🎉 Total words imported: ${total}`);
-    return { success: true, count: total };
+    console.log(`✅ Successfully imported ${wordCount} words total`);
+    return { success: true, totalImported: wordCount };
   } catch (error) {
-    console.error('Import failed:', error);
-    return { success: false, error: error.message };
+    console.error('Error importing words:', error);
+    throw error;
   }
 }
 
-export default bulkImportWords;
+export default importAllWords;

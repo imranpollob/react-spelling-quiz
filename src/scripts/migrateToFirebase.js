@@ -1,10 +1,10 @@
 import { db } from '../services/firebase';
 import { collection, writeBatch, doc, setDoc, getDoc } from 'firebase/firestore';
-import { misspelled } from '../helper-functions/MisspelledWords';
+import words from '../data/words';
 
 /**
- * Migration script to move existing words from MisspelledWords.js to Firestore
- * Run this once to populate the database with initial words
+ * Migration script to move existing words from words.js to Firestore
+ * This is a one-time operation to populate the initial word database
  */
 
 // Difficulty assignment helper (simple algorithm based on word length and complexity)
@@ -20,7 +20,7 @@ function assignDifficulty(word) {
   return 'advanced';
 }
 
-async function migrateWordsToFirestore() {
+async function migrateToFirebase() {
   console.log('Checking if migration has already been run...');
 
   // Check if migration has already been completed
@@ -46,7 +46,7 @@ async function migrateWordsToFirestore() {
     console.log('No previous migration found, proceeding...');
   }
 
-  console.log('Starting migration of', misspelled.length, 'words to Firestore...');
+  console.log('Starting migration of', words.length, 'words to Firestore...');
 
   const batch = writeBatch(db);
   const wordsRef = collection(db, 'words');
@@ -55,8 +55,8 @@ async function migrateWordsToFirestore() {
   // Process words in batches of 500 (Firestore limit)
   const batchSize = 500;
 
-  for (let i = 0; i < misspelled.length; i += batchSize) {
-    const wordsBatch = misspelled.slice(i, i + batchSize);
+  for (let i = 0; i < words.length; i += batchSize) {
+    const wordsBatch = words.slice(i, i + batchSize);
     const currentBatch = writeBatch(db);
 
     for (const word of wordsBatch) {
@@ -91,7 +91,7 @@ async function migrateWordsToFirestore() {
     }
 
     await currentBatch.commit();
-    console.log(`Migrated ${count} / ${misspelled.length} words...`);
+    console.log(`Migrated ${count} / ${words.length} words...`);
   }
 
   // Mark migration as completed
@@ -100,7 +100,7 @@ async function migrateWordsToFirestore() {
     defaultWordsImported: true,
     importDate: new Date(),
     wordCount: count,
-    source: 'MisspelledWords.js'
+    source: 'words.js'
   });
 
   console.log('✅ Migration complete!', count, 'words added to Firestore');
@@ -108,7 +108,7 @@ async function migrateWordsToFirestore() {
 }
 
 // Export for use in browser console or as a script
-export default migrateWordsToFirestore;
+export default migrateToFirebase;
 
 // If running as a Node script (uncomment to use)
 // migrateWordsToFirestore()

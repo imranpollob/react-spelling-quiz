@@ -1,69 +1,56 @@
-import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import migrateWordsToFirestore from '../scripts/migrateToFirebase';
-import { importAllNewWords } from '../scripts/bulkImport';
-import { getAllWords } from '../services/wordService';
+import migrateToFirebase from '../scripts/migrateToFirebase';
+import importAllWords from '../scripts/bulkImport';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import words from '../data/words';
+
+const ADMIN_EMAIL = 'polboy777@gmail.com';
 
 export default function MigrationTest() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [status, setStatus] = useState('');
-  const [wordCount, setWordCount] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Admin access control - only allow specific email
-  const isAdmin = user?.email === 'polboy777@gmail.com';
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   // If not admin, redirect to home
   if (!isAdmin) {
-    return <Navigate to="/" replace />;
+    navigate('/');
+    return null;
   }
 
   const handleMigration = async () => {
     setLoading(true);
-    setStatus('Starting migration...');
+    setStatus('Starting import...');
 
     try {
-      const count = await migrateWordsToFirestore();
+      const count = await migrateToFirebase();
       if (count === 0) {
-        setStatus('Migration cancelled - already completed');
+        setStatus('Import cancelled - already completed');
       } else {
-        setStatus(`✅ Migration complete! ${count} words added to Firestore`);
+        setStatus(`✅ Import complete! ${count} words added to Firestore`);
+        await checkWordCount();
       }
     } catch (error) {
-      setStatus(`❌ Migration failed: ${error.message}`);
+      setStatus(`❌ Import failed: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBulkImport = async () => {
+  const checkWordCount = async () => {
     setLoading(true);
-    setStatus('Starting bulk import of new words...');
 
     try {
-      const result = await importAllNewWords();
-      if (result.success) {
-        setStatus(`✅ Bulk import complete! ${result.count} new words added with full metadata`);
-        handleCheckWords(); // Auto-refresh word count
-      } else {
-        setStatus(`❌ Bulk import failed: ${result.error}`);
-      }
-    } catch (error) {
-      setStatus(`❌ Bulk import failed: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCheckWords = async () => {
-    setLoading(true);
-    setStatus('Fetching words from Firestore...');
-
-    try {
-      const words = await getAllWords();
-      setWordCount(words.length);
-      setStatus(`✅ Found ${words.length} words in Firestore`);
+      const wordsCollection = collection(db, 'words');
+      const wordSnapshot = await getDocs(wordsCollection);
+      const fetchedWords = wordSnapshot.docs.map(doc => doc.data());
+      setStatus(`📊 Found ${fetchedWords.length} words in Firestore`);
     } catch (error) {
       setStatus(`❌ Failed to fetch words: ${error.message}`);
     } finally {
@@ -89,59 +76,20 @@ export default function MigrationTest() {
         <h2 className="text-3xl font-bold text-gradient mb-6">Database Migration & Import</h2>
 
         <div className="space-y-4">
-          <div className="card bg-blue-50/50 dark:bg-blue-950/30 p-6">
-            <h3 className="font-bold text-lg mb-2">Step 1: Migrate Default Words</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-              One-time migration of 237 base words from MisspelledWords.js
-            </p>
-            <button
-              onClick={handleMigration}
-              disabled={loading}
-              className="btn btn--primary"
-            >
-              {loading ? 'Migrating...' : 'Run Default Migration'}
-            </button>
-          </div>
 
-          <div className="card bg-purple-50/50 dark:bg-purple-950/30 p-6">
-            <h3 className="font-bold text-lg mb-2">Step 2: Import New Words</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
-              Import additional words with full metadata:
-            </p>
-            <ul className="text-sm text-slate-600 dark:text-slate-300 mb-4 list-disc list-inside space-y-1">
-              <li>✨ 40 beginner words with definitions</li>
-              <li>🎓 45 intermediate words with examples</li>
-              <li>📝 Example sentences for every word</li>
-              <li>⚠️ Common misspellings included</li>
-              <li>🎯 Difficulty levels pre-assigned</li>
-              <li>📊 Total: 85 new words</li>
-            </ul>
-            <button
-              onClick={handleBulkImport}
-              disabled={loading}
-              className="btn btn--primary"
-            >
-              {loading ? 'Importing...' : 'Import New Words (85)'}
-            </button>
-          </div>
 
           <div className="card bg-green-50/50 dark:bg-green-950/30 p-6">
-            <h3 className="font-bold text-lg mb-2">Step 3: Verify Database</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+            <h3 className="font-bold text-lg mb-2">Verify Database</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Check total word count in Firestore
             </p>
             <button
-              onClick={handleCheckWords}
+              onClick={checkWordCount}
               disabled={loading}
-              className="btn btn--success"
+              className="btn btn--success w-full"
             >
               {loading ? 'Checking...' : 'Check Word Count'}
             </button>
-            {wordCount !== null && (
-              <p className="mt-3 font-bold text-emerald-600 dark:text-emerald-400">
-                📊 Total words in database: {wordCount}
-              </p>
-            )}
           </div>
 
           {status && (
@@ -153,16 +101,18 @@ export default function MigrationTest() {
             </div>
           )}
 
-          <div className="card bg-orange-50/50 dark:bg-orange-950/30 p-6">
-            <h3 className="font-bold text-lg mb-2">⚠️ Important Notes</h3>
-            <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-2 list-disc list-inside">
-              <li>Run default migration first (Step 1)</li>
-              <li>Then import new words (Step 2)</li>
-              <li>Migrations are protected against duplicates</li>
-              <li>Check console for detailed logs</li>
-              <li>This page is hidden from main navigation</li>
-              <li>Bookmark this URL: <code className="bg-slate-200 dark:bg-slate-700 px-1 rounded">/migrate</code></li>
-            </ul>
+          <div className="card bg-blue-50/50 dark:bg-blue-950/30 p-6">
+            <h3 className="font-bold text-lg mb-2">Import Words to Firestore</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              One-time import of {words.length} words from words.js to Firestore database
+            </p>
+            <button
+              onClick={handleMigration}
+              disabled={loading}
+              className="btn btn--primary w-full"
+            >
+              {loading ? 'Importing...' : `Import ${words.length} Words`}
+            </button>
           </div>
         </div>
       </div>
