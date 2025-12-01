@@ -154,8 +154,8 @@ input[type="number"] {
 
 /* Glassmorphism effect */
 .glass {
-  @apply backdrop-blur-xl bg-white/30 dark:bg-slate-900/30;
-  @apply border border-white/20 dark:border-slate-700/20;
+  @apply backdrop-blur-xl bg-white dark:bg-slate-900;
+  @apply border border-white dark:border-slate-700;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   NavLink,
   Link,
+  useLocation,
 } from "react-router-dom";
 import Words from "./Words";
 import Quiz from "./Quiz";
@@ -14,8 +15,10 @@ import MigrationTest from "./MigrationTest";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { logOut } from "../services/authService";
 
-function AppContent() {
-  const { user, isAuthenticated, loading } = useAuth();
+// Component to protect routes that require authentication
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -29,8 +32,19 @@ function AppContent() {
     return <Login />;
   }
 
+  return children;
+}
+
+function AppContent() {
+  const { user, isAuthenticated, loading } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   const handleLogout = async () => {
     await logOut();
+  };
+
+  const handleCloseLogin = () => {
+    setShowLoginModal(false);
   };
 
   return (
@@ -89,7 +103,7 @@ function AppContent() {
                 </NavLink>
 
                 {/* Admin-only link to migration page */}
-                {user?.email === 'polboy777@gmail.com' && (
+                {isAuthenticated && user?.email === 'polboy777@gmail.com' && (
                   <NavLink
                     to="/admin"
                     className={({ isActive }) =>
@@ -105,27 +119,38 @@ function AppContent() {
 
                 {/* User Menu */}
                 <div className="ml-4 pl-4 border-l border-slate-200 dark:border-slate-700 flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                      <span className="text-white text-sm font-semibold">
-                        {user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || 'G'}
-                      </span>
-                    </div>
-                    <div className="hidden sm:block">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">
-                        {user?.displayName || user?.email?.split('@')[0] || 'Guest'}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {user?.email === 'polboy777@gmail.com' ? 'Admin' : (user?.isAnonymous ? 'Guest' : 'User')}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                  >
-                    Logout
-                  </button>
+                  {isAuthenticated ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                          <span className="text-white text-sm font-semibold">
+                            {user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || 'G'}
+                          </span>
+                        </div>
+                        <div className="hidden sm:block">
+                          <p className="text-sm font-medium text-slate-900 dark:text-white">
+                            {user?.displayName || user?.email?.split('@')[0] || 'Guest'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {user?.email === 'polboy777@gmail.com' ? 'Admin' : (user?.isAnonymous ? 'Guest' : 'User')}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setShowLoginModal(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Login / Sign Up
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -137,10 +162,23 @@ function AppContent() {
           <Routes>
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/words" element={<Words />} />
-            <Route path="/admin" element={<MigrationTest />} />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <MigrationTest />
+              </ProtectedRoute>
+            } />
             <Route path="/" element={<Home />} />
           </Routes>
         </main>
+
+        {/* Login Modal */}
+        {showLoginModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={handleCloseLogin}>
+            <div className="max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+              <Login onClose={handleCloseLogin} />
+            </div>
+          </div>
+        )}
       </div>
     </Router>
   );

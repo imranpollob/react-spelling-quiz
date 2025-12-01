@@ -9,7 +9,7 @@ import WordList from "./WordList";
 const ADMIN_EMAIL = 'polboy777@gmail.com';
 
 export default function Words() {
-  const { user, isAnonymous } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { words, loading, refreshWords } = useWords(user?.uid);
   const [currentValue, setCurrentValue] = useState("");
   const [adding, setAdding] = useState(false);
@@ -21,9 +21,9 @@ export default function Words() {
       return;
     }
 
-    // Check if guest user
-    if (isAnonymous) {
-      infoToast("Please sign up to add your own words!");
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      infoToast("Please login to add your own words!");
       return;
     }
 
@@ -107,7 +107,7 @@ export default function Words() {
             <div className="space-y-1">
               <p className="text-slate-600 dark:text-slate-400">
                 <span className="font-bold text-primary-600 dark:text-primary-400">{globalWords.length}</span> global words
-                {!isAnonymous && (
+                {isAuthenticated && (
                   <>
                     {' + '}
                     <span className="font-bold text-purple-600 dark:text-purple-400">{personalWords.length}</span> your words
@@ -119,7 +119,7 @@ export default function Words() {
                   👑 Admin: Your words are visible to all users
                 </p>
               )}
-              {!isAdmin && !isAnonymous && (
+              {!isAdmin && isAuthenticated && (
                 <p className="text-sm text-purple-600 dark:text-purple-400">
                   📝 Your personal words are only visible to you
                 </p>
@@ -127,23 +127,17 @@ export default function Words() {
             </div>
           </div>
 
-          {isAnonymous ? (
+          {!isAuthenticated ? (
             <div className="card bg-blue-50/50 dark:bg-blue-950/30 p-6 text-center">
               <svg className="w-12 h-12 mx-auto mb-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <h3 className="font-bold text-lg mb-2 text-slate-800 dark:text-slate-200">
-                Sign Up to Add Words
+                Please login to add your own words
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                Guest users can only practice with existing words. Create an account to build your personal word list!
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                You can browse and practice with existing words as a guest. Login to build your personal word list!
               </p>
-              <button
-                onClick={() => window.location.reload()} // This will show login screen
-                className="btn btn--primary"
-              >
-                Sign Up Now
-              </button>
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row gap-3">
