@@ -34,7 +34,8 @@ export default function Quiz() {
   }
 
   function handleInputChange(value) {
-    setAnswer(value);
+    const sanitized = value.replace(/[^a-zA-Z]/g, "");
+    setAnswer(sanitized);
   }
 
   function handleStartQuiz() {
@@ -58,8 +59,14 @@ export default function Quiz() {
 
   function handleInput(e) {
     if (e.key === "Enter") {
-      setAnswer(e.target.value);
+      e.preventDefault();
       handleNextQuestion();
+      return;
+    }
+
+    if (e.key === "1") {
+      e.preventDefault();
+      handlePlayAgain();
     }
   }
 
@@ -150,13 +157,16 @@ export default function Quiz() {
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <button
-                  className="btn btn--secondary flex items-center justify-center gap-2 flex-1"
+                  className="btn flex items-center justify-center gap-2 flex-1 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 text-indigo-800 dark:text-indigo-100"
                   onClick={() => handlePlayAgain()}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                   </svg>
                   Listen Again
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded bg-slate-300/70 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+                    1
+                  </span>
                 </button>
                 <button
                   className="btn btn--success flex items-center justify-center gap-2 flex-1"
@@ -166,6 +176,10 @@ export default function Quiz() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-100/80 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 border border-emerald-200/70 dark:border-emerald-700/70">
+                    Enter
+                  </span>
+
                 </button>
               </div>
             </div>
