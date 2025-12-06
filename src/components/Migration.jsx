@@ -8,7 +8,7 @@ import words from '../data/words';
 
 const ADMIN_EMAIL = 'polboy777@gmail.com';
 
-export default function MigrationTest() {
+export default function Migration() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState('');
@@ -75,10 +75,8 @@ export default function MigrationTest() {
         <h2 className="text-3xl font-bold text-gradient mb-6">Database Migration & Import</h2>
 
         <div className="space-y-4">
-
-
           <div className="card bg-green-50/50 dark:bg-green-950/30 p-6">
-            <h3 className="font-bold text-lg mb-2">Verify Database</h3>
+            <h3 className="font-bold text-lg mb-2 text-slate-800 dark:text-slate-200">Verify Database</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Check total word count in Firestore
             </p>
@@ -95,20 +93,20 @@ export default function MigrationTest() {
             <div className={`card p-6 ${status.includes('❌') ? 'bg-red-50/50 dark:bg-red-950/30' :
               'bg-green-50/50 dark:bg-green-950/30'
               }`}>
-              <h3 className="font-bold text-lg mb-2">Status</h3>
-              <p className="text-sm whitespace-pre-wrap">{status}</p>
+              <h3 className="font-bold text-lg mb-2 text-slate-800 dark:text-slate-200">Status</h3>
+              <p className="text-sm whitespace-pre-wrap text-slate-800 dark:text-slate-200">{status}</p>
             </div>
           )}
 
           <div className="card bg-blue-50/50 dark:bg-blue-950/30 p-6">
-            <h3 className="font-bold text-lg mb-2">Import Words to Firestore</h3>
+            <h3 className="font-bold text-lg mb-2 text-slate-800 dark:text-slate-200">Import Words to Firestore</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               One-time import of {words.length} words from words.js to Firestore database
             </p>
             <button
               onClick={handleMigration}
               disabled={loading}
-              className="btn btn--primary w-full"
+              className="btn btn--primary w-full "
             >
               {loading ? 'Importing...' : `Import ${words.length} Words`}
             </button>

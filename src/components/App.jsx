@@ -11,7 +11,7 @@ import Words from "./Words";
 import Quiz from "./Quiz";
 import Home from "./Home";
 import Login from "./Login";
-import MigrationTest from "./MigrationTest";
+import Migration from "./Migration";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { logOut } from "../services/authService";
 
@@ -204,7 +204,7 @@ function AppContent() {
             <Route path="/words" element={<Words />} />
             <Route path="/admin" element={
               <ProtectedRoute>
-                <MigrationTest />
+                <Migration />
               </ProtectedRoute>
             } />
             <Route path="/" element={<Home />} />
