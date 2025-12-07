@@ -18,7 +18,6 @@ import { logOut } from "../services/authService";
 // Component to protect routes that require authentication
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
-  const location = useLocation();
 
   if (loading) {
     return (
@@ -36,7 +35,7 @@ function ProtectedRoute({ children }) {
 }
 
 function AppContent() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     // Check localStorage or system preference

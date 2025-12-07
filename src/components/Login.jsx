@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signInAnonymous, signInWithEmail, signUpWithEmail, signInWithGoogle } from '../services/authService';
+import { signInWithEmail, signUpWithEmail, signInWithGoogle } from '../services/authService';
 import { successToast, dangerToast } from '../helper-functions/toast';
 import Toast from '../helper-components/Toast';
 
@@ -9,19 +9,6 @@ export default function Login({ onClose }) {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleAnonymous = async () => {
-    setLoading(true);
-    const { error } = await signInAnonymous();
-    setLoading(false);
-
-    if (error) {
-      dangerToast(error);
-    } else {
-      successToast('Signed in as guest!');
-      onClose?.();
-    }
-  };
 
   const handleEmailAuth = async (e) => {
     e.preventDefault();
